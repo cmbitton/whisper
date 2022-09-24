@@ -4,7 +4,9 @@ import langs
 
 lang_list = sorted(langs.LANGUAGES.values())
 
-def transcribe(task, language, model_size, mic, file):
+def transcribe(task, device, language, model_size, mic, file):
+        if device =='gpu':
+            device = 'cuda'
         args = {'task': task}
         if (model_size == 'tiny.en') or (model_size == 'base.en') or (model_size == 'small.en') or (model_size == 'medium.en'):
             args['language'] = 'english'
@@ -12,7 +14,7 @@ def transcribe(task, language, model_size, mic, file):
             args['language'] = None
         else:
             args['language'] = language
-        model = whisper.load_model(model_size)
+        model = whisper.load_model(model_size, device)
         if mic is not None:
             audio = mic
         elif file is not None:
@@ -26,7 +28,8 @@ def transcribe(task, language, model_size, mic, file):
 
 demo = gr.Interface(transcribe, 
     inputs=[
-        gr.Radio(['transcribe', 'translate'], label= 'Task'), 
+        gr.Radio(['transcribe', 'translate'], label= 'Task'),
+        gr.Radio(['gpu', 'cpu'], label= 'Task'),
         gr.Dropdown(lang_list, value='Detect',  label='Audio Language'),
         gr.Dropdown(['tiny', 'tiny.en', 'base', 'base.en', 'small', 'small.en', 'medium', 'medium.en', 'large'], value='small.en', label='Model Size'), 
         gr.Audio(label='Microphone Recording', source='microphone', type='filepath'), 
