@@ -29,7 +29,7 @@ def transcribe(task, device, language, model_size, mic, file):
 demo = gr.Interface(transcribe, 
     inputs=[
         gr.Radio(['transcribe', 'translate'], label= 'Task'),
-        gr.Radio(['gpu', 'cpu'], label= 'Task'),
+        gr.Radio(['gpu', 'cpu'], label= 'Device'),
         gr.Dropdown(lang_list, value='Detect',  label='Audio Language'),
         gr.Dropdown(['tiny', 'tiny.en', 'base', 'base.en', 'small', 'small.en', 'medium', 'medium.en', 'large'], value='small.en', label='Model Size'), 
         gr.Audio(label='Microphone Recording', source='microphone', type='filepath'), 
