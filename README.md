@@ -27,6 +27,9 @@ It also requires the command-line tool [`ffmpeg`](https://ffmpeg.org/) to be ins
 # on Ubuntu or Debian
 sudo apt update && sudo apt install ffmpeg
 
+# on Arch Linux
+sudo pacman -S ffmpeg
+
 # on MacOS using Homebrew (https://brew.sh/)
 brew install ffmpeg
 
@@ -37,7 +40,11 @@ choco install ffmpeg
 scoop install ffmpeg
 ```
 
-You may need [`rust`](http://rust-lang.org) installed as well, in case [tokenizers](https://pypi.org/project/tokenizers/) does not provide a pre-built wheel for your platform. If you see installation errors during the `pip install` command above, please follow the [Getting started page](https://www.rust-lang.org/learn/get-started) to install Rust development environment.
+You may need [`rust`](http://rust-lang.org) installed as well, in case [tokenizers](https://pypi.org/project/tokenizers/) does not provide a pre-built wheel for your platform. If you see installation errors during the `pip install` command above, please follow the [Getting started page](https://www.rust-lang.org/learn/get-started) to install Rust development environment. Additionally, you may need to configure the `PATH` environment variable, e.g. `export PATH="$HOME/.cargo/bin:$PATH"`. If the installation fails with `No module named 'setuptools_rust'`, you need to install `setuptools_rust`, e.g. by running:
+
+```bash
+pip install setuptools-rust
+```
 
 
 ## Available models and languages
@@ -121,6 +128,11 @@ result = whisper.decode(model, mel, options)
 # print the recognized text
 print(result.text)
 ```
+
+## More examples
+
+Please use the [🙌 Show and tell](https://github.com/openai/whisper/discussions/categories/show-and-tell) category in Discussions for sharing more example usages of Whisper and third-party extensions such as web demos, integrations with other tools, ports for different platforms, etc.
+
 
 ## License
 
