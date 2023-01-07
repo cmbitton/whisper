@@ -1,7 +1,7 @@
 # Whisper
 
 [[Blog]](https://openai.com/blog/whisper)
-[[Paper]](https://cdn.openai.com/papers/whisper.pdf)
+[[Paper]](https://arxiv.org/abs/2212.04356)
 [[Model card]](model-card.md)
 [[Colab example]](https://colab.research.google.com/github/openai/whisper/blob/master/notebooks/LibriSpeech.ipynb)
 
@@ -20,6 +20,10 @@ A Transformer sequence-to-sequence model is trained on various speech processing
 We used Python 3.9.9 and [PyTorch](https://pytorch.org/) 1.10.1 to train and test our models, but the codebase is expected to be compatible with Python 3.7 or later and recent PyTorch versions. The codebase also depends on a few Python packages, most notably [HuggingFace Transformers](https://huggingface.co/docs/transformers/index) for their fast tokenizer implementation and [ffmpeg-python](https://github.com/kkroening/ffmpeg-python) for reading audio files. The following command will pull and install the latest commit from this repository, along with its Python dependencies 
 
     pip install git+https://github.com/openai/whisper.git 
+
+To update the package to the latest version of this repository, please run:
+
+    pip install --upgrade --no-deps --force-reinstall git+https://github.com/openai/whisper.git
 
 It also requires the command-line tool [`ffmpeg`](https://ffmpeg.org/) to be installed on your system, which is available from most package managers:
 
@@ -62,7 +66,7 @@ There are five model sizes, four with English-only versions, offering speed and 
 
 For English-only applications, the `.en` models tend to perform better, especially for the `tiny.en` and `base.en` models. We observed that the difference becomes less significant for the `small.en` and `medium.en` models.
 
-Whisper's performance varies widely depending on the language. The figure below shows a WER breakdown by languages of Fleurs dataset, using the `large` model. More WER and BLEU scores corresponding to the other models and datasets can be found in Appendix D in [the paper](https://cdn.openai.com/papers/whisper.pdf).
+Whisper's performance varies widely depending on the language. The figure below shows a WER breakdown by languages of Fleurs dataset, using the `large-v2` model. More WER and BLEU scores corresponding to the other models and datasets can be found in Appendix D in [the paper](https://arxiv.org/abs/2212.04356).
 
 ![WER breakdown by language](language-breakdown.svg)
 
