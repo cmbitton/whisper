@@ -252,11 +252,10 @@ class GreedyDecoder(TokenDecoder):
         self.eot = eot
 
     def update(self, tokens: Tensor, logits: Tensor, sum_logprobs: Tensor) -> Tuple[Tensor, bool]:
-        temperature = self.temperature
-        if temperature == 0:
+        if self.temperature == 0:
             next_tokens = logits.argmax(dim=-1)
         else:
-            next_tokens = Categorical(logits=logits / temperature).sample()
+            next_tokens = Categorical(logits=logits / self.temperature).sample()
 
         logprobs = F.log_softmax(logits.float(), dim=-1)
         current_logprobs = logprobs[torch.arange(logprobs.shape[0]), next_tokens]
@@ -413,7 +412,8 @@ class ApplyTimestampRules(LogitFilter):
 
         # timestamps have to appear in pairs, except directly before EOT; mask logits accordingly
         for k in range(tokens.shape[0]):
-            seq = [t for t in tokens[k, self.sample_begin :].tolist()]
+            sampled_tokens = tokens[k, self.sample_begin :]
+            seq = [t for t in sampled_tokens.tolist()]
             last_was_timestamp = len(seq) >= 1 and seq[-1] >= self.tokenizer.timestamp_begin
             penultimate_was_timestamp = len(seq) < 2 or seq[-2] >= self.tokenizer.timestamp_begin
 
@@ -422,6 +422,11 @@ class ApplyTimestampRules(LogitFilter):
                     logits[k, self.tokenizer.timestamp_begin :] = -np.inf
                 else:  # cannot be normal text tokens
                     logits[k, : self.tokenizer.eot] = -np.inf
+
+            timestamps = sampled_tokens[sampled_tokens.ge(self.tokenizer.timestamp_begin)]
+            if timestamps.numel() > 0:
+                # timestamps shouldn't decrease; forbid timestamp tokens smaller than the last
+                logits[k, self.tokenizer.timestamp_begin : timestamps[-1]] = -np.inf
 
         if tokens.shape[1] == self.sample_begin:
             # suppress generating non-timestamp tokens at the beginning
@@ -511,10 +516,8 @@ class DecodingTask:
 
     def _get_initial_tokens(self) -> Tuple[int]:
         tokens = list(self.sot_sequence)
-        prefix = self.options.prefix
-        prompt = self.options.prompt
 
-        if prefix:
+        if prefix := self.options.prefix:
             prefix_tokens = (
                 self.tokenizer.encode(" " + prefix.strip()) if isinstance(prefix, str) else prefix
             )
@@ -523,7 +526,7 @@ class DecodingTask:
                 prefix_tokens = prefix_tokens[-max_prefix_len:]
             tokens = tokens + prefix_tokens
 
-        if prompt:
+        if prompt := self.options.prompt:
             prompt_tokens = (
                 self.tokenizer.encode(" " + prompt.strip()) if isinstance(prompt, str) else prompt
             )
@@ -698,13 +701,9 @@ def decode(model: "Whisper", mel: Tensor, options: DecodingOptions = DecodingOpt
     result: Union[DecodingResult, List[DecodingResult]]
         The result(s) of decoding contained in `DecodingResult` dataclass instance(s)
     """
-    single = mel.ndim == 2
-    if single:
+    if single := mel.ndim == 2:
         mel = mel.unsqueeze(0)
 
     result = DecodingTask(model, options).run(mel)
-    
-    if single:
-        result = result[0]
 
-    return result
+    return result[0] if single else result

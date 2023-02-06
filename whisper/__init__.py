@@ -12,6 +12,7 @@ from .audio import load_audio, log_mel_spectrogram, pad_or_trim
 from .decoding import DecodingOptions, DecodingResult, decode, detect_language
 from .model import Whisper, ModelDimensions
 from .transcribe import transcribe
+from .version import __version__
 
 
 _MODELS = {
@@ -93,9 +94,14 @@ def load_model(name: str, device: Optional[Union[str, torch.device]] = None, dow
     if device is None:
         device = "cuda" if torch.cuda.is_available() else "cpu"
     if download_root is None:
-        download_root = os.getenv(
-            "XDG_CACHE_HOME", 
-            os.path.join(os.path.expanduser("~"), ".cache", "whisper")
+        download_root = os.path.join(
+            os.getenv(
+                "XDG_CACHE_HOME",
+                os.path.join(
+                    os.path.expanduser("~"), ".cache"
+                )
+            ),
+            "whisper"
         )
 
     if name in _MODELS:
